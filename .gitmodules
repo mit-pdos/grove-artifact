@@ -1,0 +1,12 @@
+[submodule "perennial"]
+	path = perennial
+	url = https://github.com/mit-pdos/perennial.git
+[submodule "gokv"]
+	path = gokv
+	url = https://github.com/mit-pdos/gokv
+[submodule "redis/redis"]
+	path = redis/redis
+	url = https://github.com/redis/redis.git
+[submodule "go-ycsb"]
+	path = go-ycsb
+	url = https://github.com/mit-pdos/go-ycsb
