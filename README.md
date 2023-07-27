@@ -21,18 +21,43 @@ systems components as well as scripts for the performance evaluation of GroveKV.
 specs+proofs of the code in the `gokv` repo.
 
 # Set up machines
-This artifact is meant to be run on CloudLab, using this
+This artifact, particularly the performance evaluation, is primarily meant to be
+run on CloudLab, using this
 [cloudlab profile](https://www.cloudlab.us/instantiate.php?profile=23d8454f-fa5d-11ed-b28b-e4434b2381fc&rerun_instance=73cfbf01-2bc4-11ee-9f39-e4434b2381fc)
 There should be 8 nodes of type `d430` running `UBUNTU 20.04`.
 
 Get a shell on `node4` via ssh.
-On `node4`, run `git clone ...` to download a copy of the artifact to `~/grove-artifact`.
+On `node4`, run `git clone https://github.com/mit-pdos/grove-artifact` to
+download a copy of the artifact to `~/grove-artifact`.
+Then run
+```
+cd grove-artifact
+git submodule update --init --recursive
+```
+to download the other repos.
+
+## Running outside CloudLab
+The proof part can be done on any machine, so long as the right version of Coq
+is installed, as explained in the "Proofs" section.
+
+
+The performance evaluation scripts in `gokv/simplepb/bench` are tailored for
+CloudLab, and are only a starting point for running this eval on other hardware
+setups, with some scripts being reusable and others needing changes.  The
+scripts assume that there are 8 nodes with the same numbers of CPUs/cores as
+`d430` machines, which can connect via `ssh` to each other with the names
+`node0, ..., node7`. The `eval-setup.py` script assumes that the machines are
+running Ubuntu 20.04 and installs various packages (e.g. Go and python). The
+scripts should be adaptable to non-CloudLab setups if the nodes are running
+Ubuntu or otherwise have the same packages installed. As a last note, only
+experiment `e3.py` needs 8 machines (some for running clients), while the other
+experiments can work with 5 machines.
 
 # Proofs
 
 1. [**SLOW**] `./coq-setup.sh`  
 This installs Coq 8.17.0.
-If you have Coq 8.17 installed on your machine ([installation
+Alternatively, if you have Coq 8.17 installed on your machine ([installation
 instructions](https://coq.inria.fr/opam-using.html)), you can follow the rest of
 the steps on your machine.
 2. `cd perennial`
@@ -102,6 +127,7 @@ linked above.
 
 Get a shell on to `node4`, e.g .`ssh node4`.
 Make sure `grove-artifact` has been cloned in the home directory on `node4`.
+Install python via `sudo apt install python`.
 Then, from inside the `grove_artifact` directory on `node4`, run:
 [**VERY SLOW**]
 ```
@@ -120,7 +146,3 @@ Connect to `node4` in the cluster via `ssh node4` or similar.
 After getting a shell at the home directory of the cloudlab machine, run `git
 clone ...` to download a copy of the artifact to `~/grove-artifact`.
 Then run the commands
-```
-cd grove-artifact
-git submodule update --init --recursive
-```
