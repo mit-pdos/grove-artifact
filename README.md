@@ -73,10 +73,15 @@ proof depends on, and if there were any incomplete parts of the proof, the
 At the end, you should only see some standard Coq axioms that you can ignore 
 (called `sig_forall_dec` and `functional_extensionality_dep`).
 
-Optionally, confirm that the Go code is in sync with its formal model in Coq.
+You can also confirm that the Go code is in sync with its formal model in Coq.
 Install the `Goose` tool with `go get github.com/tchajed/goose/cmd/goose`.
 Then, in the `perennial` directory, run `./etc/update-goose.py --compile  --gokv
-../gokv`.
+../gokv`. In the `update-goose.py` script, you can see the list of the GroveKV
+packages in lines 252-264, mostly contained under `simplepb`. You can try
+changing a line of code in the `gokv` directory, and rerunning the
+`update-goose.py` command and you should see a line change in
+`perennial/external` directory, and the existing proof for that component will
+likely no longer work.
 
 ## Reading the top-level theorems
 Let's go through the list from section 4.4:
@@ -127,12 +132,38 @@ linked above.
 
 Get a shell on to `node4`, e.g .`ssh node4`.
 Make sure `grove-artifact` has been cloned in the home directory on `node4`.
-Install python via `sudo apt install python`.
-Then, from inside the `grove_artifact` directory on `node4`, run:
+
+From your a machine which is able to ssh to all of the cloudlab nodes (e.g. your
+laptop), run  First, set up SSH between the nodes by running `./ssh-setup.py`.
+You will have to modify `ssh-setup.py` to include the list of hostnames for the
+CloudLab machines you have access to, and provide your username in lines 7 and
+8.
+
+The rest of the steps are on `node4` on CloudLab.
+Run `cd ~/grove-artifact/gokv/simplepb/bench` then run the script
+`./eval-setup.py`. This will do a one-time setup of all the machines, such as
+downloading Go and building the GroveKV benchmark program.
+
+Next, to test the setup, we can run a relatively quick performance experiment.
+To do this, on `node4`, run `cd ~/gokv/simplepb/` then `python -m
+bench.experiments.e2 -v`.  At the end, you should see new data in
+`~/gokv/simplepb/bench/data/reconfig/`, specifically two files `reads.dat` and
+`writes.dat`. These files get imported in the final figure in
+`~/gokv/simplepb/bench/figure/`.
+
+Now, to run the performance evaluation `cd ~/gokv/simplepb/bench`.
+Then run `./eval-run.py`.
+
+Then, from inside the `grove-artifact` directory on `node4`, run:
 [**VERY SLOW**]
 ```
 ./performance-eval.py
 ```
+
+This results in a final set of figures on `node4` in
+`~/gokv/simplepb/bench/figures/p.pdf`.
+Download this pdf and compare Figure 1, 2, 3 of `p.pdf` with Figures 6, 7, 8
+resp from the paper.
 
 The script that actually runs the experiment is `gokv/simplepb/bench/eval-run.py`.
 The rest of `performance-eval.py` sets up the machines to run the experiments
@@ -142,7 +173,8 @@ The scripts for experiments are in `gokv/simplepb/bench/experiments/e1.py`,
 they work.
 
 ## Manual instructions (e.g. to run a single experiment)
-Connect to `node4` in the cluster via `ssh node4` or similar.
-After getting a shell at the home directory of the cloudlab machine, run `git
-clone ...` to download a copy of the artifact to `~/grove-artifact`.
-Then run the commands
+To initially set up the machines to be ready to run performance experiments, run
+`gokv/simplepb/bench/eval-setup.py` from one of the nodes.
+
+
+
