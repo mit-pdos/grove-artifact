@@ -15,13 +15,14 @@ and (2) check the mechanized proofs and that they correspond to the top-level
 theorems described in section 4.4.
 
 These parts live in their own git repos, both included here as git submodules:
+
 * the `gokv` repo and submodule contains the Go implementations of the distributed
 systems components as well as scripts for the performance evaluation of GroveKV.
 * the `perennial` repo contains the Grove separation logic library and the
 specs+proofs of the code in the `gokv` repo.
 
 # Set up machines
-This artifact, particularly the performance evaluation, is primarily meant to be
+This artifact, specifically the performance evaluation, is primarily meant to be
 run on CloudLab, using this
 [cloudlab profile](https://www.cloudlab.us/instantiate.php?profile=23d8454f-fa5d-11ed-b28b-e4434b2381fc&rerun_instance=73cfbf01-2bc4-11ee-9f39-e4434b2381fc)
 There should be 8 nodes of type `d430` running `UBUNTU 20.04`.
@@ -40,7 +41,6 @@ to download the other repos.
 The proof part can be done on any machine, so long as the right version of Coq
 is installed, as explained in the "Proofs" section.
 
-
 The performance evaluation scripts in `gokv/simplepb/bench` are tailored for
 CloudLab, and are only a starting point for running this eval on other hardware
 setups, with some scripts being reusable and others needing changes.  The
@@ -54,14 +54,16 @@ experiment `e3.py` needs 8 machines (some for running clients), while the other
 experiments can work with 5 machines.
 
 # Proofs
+Here are the steps for building/checking the proofs, including all of the
+"top-level theorems" from 4.4 in the paper.
 
-1. [**SLOW**] `./coq-setup.sh`  
+1. [**~15mins**] `./coq-setup.sh`  
 This installs Coq 8.17.0.
 Alternatively, if you have Coq 8.17 installed on your machine ([installation
 instructions](https://coq.inria.fr/opam-using.html)), you can follow the rest of
 the steps on your machine.
 2. `cd perennial`
-3. [**SLOW**]  
+3. [**~30mins**]  
         ```
         make -j`nproc` src/program_proof/simplepb/apps/print_assumptions.vo
         ```
@@ -128,53 +130,70 @@ Finally, check that all of the theorems listed above are included in the
 # Performance experiments
 
 The performance experiments are designed to run on CloudLab, using the profile
-linked above.
+linked above. The performance evaluatoin covers Figures 6, 7, 8 from the paper.
 
-Get a shell on to `node4`, e.g .`ssh node4`.
-Make sure `grove-artifact` has been cloned in the home directory on `node4`.
+The times in bold preceding the steps approximate how long the step should take
+for all the commands to finish. The active human time is entering in the few
+commands directly listed here, so the overall evaluation should require little
+active human time.
 
+[**1 min**]
 From your a machine which is able to ssh to all of the cloudlab nodes (e.g. your
-laptop), run  First, set up SSH between the nodes by running `./ssh-setup.py`.
+laptop), run `./ssh-setup.py` to set up SSH between the nodes.
 You will have to modify `ssh-setup.py` to include the list of hostnames for the
-CloudLab machines you have access to, and provide your username in lines 7 and
-8.
+CloudLab machines you have access to, and provide your username in lines 9 and
+10.
 
-The rest of the steps are on `node4` on CloudLab.
+Get a shell on to `node4` of the CloudLab setup; the rest of the steps are to be
+run on `node4`.
+Make sure `grove-artifact` has been cloned in the home directory on `node4` (see
+the "Set up machines" section).
+
+[**15mins**]
 Run `cd ~/grove-artifact/gokv/simplepb/bench` then run the script
 `./eval-setup.py`. This will do a one-time setup of all the machines, such as
-downloading Go and building the GroveKV benchmark program.
+downloading Go and building the GroveKV benchmark program. Ignore the last line
+of output about running `make test`; that's output from building `redis`.
 
-Next, to test the setup, we can run a relatively quick performance experiment.
-To do this, on `node4`, run `cd ~/gokv/simplepb/` then `python -m
-bench.experiments.e2 -v`.  At the end, you should see new data in
-`~/gokv/simplepb/bench/data/reconfig/`, specifically two files `reads.dat` and
+[**3mins**]
+Let's test that the evaluation is actually set up.
+To start, disconnect from `node4` and reconnect over `ssh`; the `eval-setup.py`
+script adds stuff to the shell environment, and reconnecting
+will reliably make those changes take effect.
+Next, we can run a relatively quick performance experiment.  The data for this
+will appear in `~/gokv/simplepb/bench/data/reconfig/`, so make sure the
+directory is empty to begin with (or doesn't exist).  To run the experiment run
+```
+cd ~/gokv/simplepb/ 
+python -m bench.experiments.e2 -v
+```
+(still on `node4`).  At the end, there should see be data in the
+`./bench/data/reconfig/`, specifically two files `reads.dat` and
 `writes.dat`. These files get imported in the final figure in
 `~/gokv/simplepb/bench/figure/`.
 
-Now, to run the performance evaluation `cd ~/gokv/simplepb/bench`.
-Then run `./eval-run.py`.
-
-Then, from inside the `grove-artifact` directory on `node4`, run:
-[**VERY SLOW**]
+[**SLOW**]
+Now, to run the full performance evaluation run the commands
 ```
-./performance-eval.py
+cd ~/gokv/simplepb/bench 
+./eval-run.py
 ```
+You may want to run these commands after running `screen -S artifact` to start a
+long-running screen session. If your SSH connection gets interrupted the
+experiments will keep running, you can reconnect to that session with `screen -r`.
 
-This results in a final set of figures on `node4` in
-`~/gokv/simplepb/bench/figures/p.pdf`.
-Download this pdf and compare Figure 1, 2, 3 of `p.pdf` with Figures 6, 7, 8
-resp from the paper.
+Corresponding to the three figures, there are 3 experiments. To see how to run
+the individual experiments, see the commands that `eval-run.py` runs. The three
+experiment scripts (`e1.py, e2.py, e3.py`) contain a note at the top that
+describes what that specific experiment does. The notes also say where the raw
+data ends up, so you can delete those directories to make sure you get a fresh
+run of an experiment.
 
-The script that actually runs the experiment is `gokv/simplepb/bench/eval-run.py`.
-The rest of `performance-eval.py` sets up the machines to run the experiments
-and at the end generates a pdf with the figures.
-The scripts for experiments are in `gokv/simplepb/bench/experiments/e1.py`,
-`.../e2.py`, and `.../e3.py`. They each have a comment at the top describing how
-they work.
-
-## Manual instructions (e.g. to run a single experiment)
-To initially set up the machines to be ready to run performance experiments, run
-`gokv/simplepb/bench/eval-setup.py` from one of the nodes.
-
-
-
+[**1min**]
+To build the figure, run
+```
+cd ~/gokv/simplepb/data
+pdflatex p.tex
+```
+This outputs `p.pdf`, which you can download.
+Compare the figure of `p.pdf` with the corresponding figures in the paper.
