@@ -172,7 +172,7 @@ python -m bench.experiments.e2 -v
 `writes.dat`. These files get imported in the final figure in
 `~/gokv/simplepb/bench/figure/`.
 
-[**SLOW**]
+[**A few hours**]
 Now, to run the full performance evaluation run the commands
 ```
 cd ~/gokv/simplepb/bench 
@@ -182,12 +182,12 @@ You may want to run these commands after running `screen -S artifact` to start a
 long-running screen session. If your SSH connection gets interrupted the
 experiments will keep running, you can reconnect to that session with `screen -r`.
 
-Corresponding to the three figures, there are 3 experiments. To see how to run
-the individual experiments, see the commands that `eval-run.py` runs. The three
-experiment scripts (`e1.py, e2.py, e3.py`) contain a note at the top that
-describes what that specific experiment does. The notes also say where the raw
-data ends up, so you can delete those directories to make sure you get a fresh
-run of an experiment.
+After getting this running, it may be helpful to read the notes about how the
+experiments work. Corresponding to the three figures, there are 3 experiments.
+The three experiment scripts (`e1.py, e2.py, e3.py` referenced by `eval-run.py`)
+contain notes at the top that describe each experiment. The notes also say where
+the raw data ends up, so you can delete those directories to make sure you get a
+fresh run of an experiment.
 
 [**1min**]
 To build the figure, run
