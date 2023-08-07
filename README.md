@@ -23,9 +23,17 @@ specs+proofs of the code in the `gokv` repo.
 
 # Set up machines
 This artifact, specifically the performance evaluation, is primarily meant to be
-run on CloudLab, using this
-[cloudlab profile](https://www.cloudlab.us/instantiate.php?profile=23d8454f-fa5d-11ed-b28b-e4434b2381fc&rerun_instance=73cfbf01-2bc4-11ee-9f39-e4434b2381fc)
-There should be 8 nodes of type `d430` running `UBUNTU 20.04`.
+run on CloudLab. Here's how to set up the CloudLab environment.
+Go to the [CloudLab dashboard](https://www.cloudlab.us/user-dashboard.php).
+Go to "Experiments -> Start Experiment".
+In step 1, select the "small-lan" profile via the "Change Profile" button.
+In step 2, enter the following three options:
+```
+  Number of Nodes: 8
+  Select OS image: UBUNTU 20.04
+  Optional physical node type: d430
+```
+Then follow steps 3 and 4 as directed by the webpage.
 
 Get a shell on `node4` via ssh.
 On `node4`, run `git clone https://github.com/mit-pdos/grove-artifact` to
