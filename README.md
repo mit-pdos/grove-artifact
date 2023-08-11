@@ -200,7 +200,7 @@ fresh run of an experiment.
 [**1min**]
 To build the figure, run
 ```
-cd ~/gokv/simplepb/data
+cd ~/gokv/simplepb/bench/figure
 pdflatex p.tex
 ```
 This outputs `p.pdf`, which you can download.
